@@ -1,16 +1,14 @@
+// Waiz Khan
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.SQLException;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -24,9 +22,6 @@ public class graphicsRunner {
 	
 	private String[] domainList;
 	private String[] tableList;
-		
-	private GridBagLayout gridbag;
-	private GridBagConstraints c;
 
 	private JPanel mainPanel;
 	
@@ -40,16 +35,9 @@ public class graphicsRunner {
 	
 	public void addContents(Container pane) {
 		
-		mainPanel = new JPanel();
-		
-				       
-		gridbag = new GridBagLayout();
-        c = new GridBagConstraints();
-        
+		mainPanel = new JPanel();      
         mainPanel.setLayout(null);
-        
-        c.insets = new Insets(30, 30, 30, 30);
-		
+        		
         // Connect to the Database
         con = new MysqlCon("root", "blueBlanket!2");
         
@@ -150,14 +138,12 @@ public class graphicsRunner {
         JScrollPane tableContainer = new JScrollPane(table);
         tableContainer.setBounds(10, 10, result.getWidth()-20, result.getHeight()-100);
         
-        Border b1 = BorderFactory.createLineBorder(Color.BLUE, 3);
-        //tableContainer.setBorder(b1);
         result.add(tableContainer);
         
         JButton backButton = new JButton("Clear Table");
         backButton.setBackground(Color.RED); 
         backButton.setBounds(10, result.getHeight() - 80, 100, 50);
-		result.add(backButton, c);
+		result.add(backButton);
 		
 		result.repaint();
 		
@@ -171,7 +157,8 @@ public class graphicsRunner {
 				inputTable.repaint();
 				renderDomainPanel();
 				
-			}});
+			}
+		});
 		
 		
 	}
@@ -185,7 +172,6 @@ public class graphicsRunner {
 			colNames = con.getColNames();
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -209,7 +195,6 @@ public class graphicsRunner {
 		try {
 			con.selectDomain(s);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

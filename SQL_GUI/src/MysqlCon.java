@@ -1,4 +1,5 @@
 // Waiz Khan
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,16 +30,6 @@ public class MysqlCon {
 			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/common", username, password);
 
 			fillDomains(con);
-			
-			//selectedDomain = "ABC";
-			
-			//fillTables(con);
-			
-			//selectedTable = "Test1";
-			
-			//System.out.println(domainNames);
-			//System.out.println(tableNames);
-						
 			
 		} catch (Exception e) {
 			System.out.println(e);
@@ -104,11 +95,9 @@ public class MysqlCon {
 		
 		colNames = new String[cols];
 		
-		int indx = 0;
-		while(rs.next()) {
+		for(int indx = 0; indx < cols; indx++)
 			colNames[indx] = rsmd.getColumnName(indx + 1);
-			indx++;
-		}
+	
 		rs.beforeFirst();
 		System.out.println(Arrays.toString(colNames));
 		
