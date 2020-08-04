@@ -18,7 +18,7 @@ public class graphicsRunner {
 	private final static int screenX = (int)screenSize.getWidth();
 	private final static int screenY = (int)screenSize.getHeight();
 	
-	MysqlCon con;
+	private MysqlCon con;
 	
 	private String[] domainList;
 	private String[] tableList;
@@ -34,10 +34,14 @@ public class graphicsRunner {
 
 	
 	public void addContents(Container pane) {
+
+		// For adding login screen in the future
+		//String name = JOptionPane.showInputDialog(null, "Enter Name");
+		//System.out.println(name);
 		
 		mainPanel = new JPanel();      
         mainPanel.setLayout(null);
-        		
+        
         // Connect to the Database
         con = new MysqlCon("root", "blueBlanket!2");
         
@@ -54,10 +58,11 @@ public class graphicsRunner {
         // Create Right Panel
         inputTable = new JPanel();  
         inputTable.setLayout(null);
-       // inputTable.setBorder(b);
+        //inputTable.setBorder(b);
         
         // Create Result Panel
         result = new JPanel();
+        result.setLayout(null);
         result.setBorder(b);
         
         // Add three panels
@@ -67,7 +72,7 @@ public class graphicsRunner {
         inputTable.setBounds(30 + (screenX-60)/2, 30, (screenX-60)/2, 50);
         mainPanel.add(inputTable);
 
-        result.setBounds(30, 100, (screenX-60), 700);
+        result.setBounds(30, 100, (screenX-60), (screenY-160));
         mainPanel.add(result);
         
         renderDomainPanel();
@@ -88,7 +93,11 @@ public class graphicsRunner {
 		JComboBox<String> domainDropdown = new JComboBox<String>(domainList);
 		domainDropdown.setFont(new Font("Arial", Font.PLAIN, 20));
 		domainDropdown.setBounds(200, 0, 400, 50);
+		domainDropdown.setSelectedIndex(-1);
 		inputDomain.add(domainDropdown);
+		
+		inputDomain.revalidate();
+		inputDomain.repaint();
 		
 		// Action to take when an option is selected in the domainDropdown
 		domainDropdown.addActionListener(new ActionListener() {
@@ -115,7 +124,11 @@ public class graphicsRunner {
 		JComboBox<String> tableDropdown = new JComboBox<String>(tableList);
 		tableDropdown.setFont(new Font("Arial", Font.PLAIN, 20));
 		tableDropdown.setBounds(200, 0, 400, 50);
+		tableDropdown.setSelectedIndex(-1);
 		inputTable.add(tableDropdown);
+		
+		inputTable.revalidate();
+		inputTable.repaint();
 		
 		tableDropdown.addActionListener(new ActionListener() {
 
@@ -136,14 +149,17 @@ public class graphicsRunner {
 		// use JTable, need 2D array of values and String array of column names
 		JTable table = new JTable(fullTable, colNames);
         JScrollPane tableContainer = new JScrollPane(table);
-        tableContainer.setBounds(10, 10, result.getWidth()-20, result.getHeight()-100);
+        tableContainer.setBounds(10, 10, result.getWidth()-20, result.getHeight()-80);
         
         result.add(tableContainer);
         
-        JButton backButton = new JButton("Clear Table");
-        backButton.setBackground(Color.RED); 
-        backButton.setBounds(10, result.getHeight() - 80, 100, 50);
+        JButton backButton = new JButton("Clear Table"); 
+        backButton.setBounds(10, result.getHeight() - 60, 100, 50);
 		result.add(backButton);
+		
+		JButton confirmButton = new JButton("Confirm Changes");
+		confirmButton.setBounds(result.getWidth() - 160, result.getHeight() - 60, 150, 50);
+		result.add(confirmButton);
 		
 		result.repaint();
 		
@@ -155,6 +171,8 @@ public class graphicsRunner {
 				result.repaint();
 				inputTable.removeAll();
 				inputTable.repaint();
+				inputDomain.removeAll();
+				inputDomain.repaint();
 				renderDomainPanel();
 				
 			}
@@ -212,14 +230,14 @@ public class graphicsRunner {
 		JFrame f = new JFrame();
 		f.setName(name);
 		f.setSize(screenX, screenY);
-		f.setResizable(false);
+		f.setResizable(true);
 		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		graphicsRunner app = new graphicsRunner();
 		app.addContents(f.getContentPane());
-
 		f.setVisible(true);
+		
 		
 	}
 	

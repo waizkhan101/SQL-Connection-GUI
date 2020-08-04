@@ -101,7 +101,7 @@ public class MysqlCon {
 		rs.beforeFirst();
 		System.out.println(Arrays.toString(colNames));
 		
-		fullTable = new String[rows][cols];
+		fullTable = new String[rows + 1][cols];
 		
 		int r = 0;		
 		while(rs.next())  {
