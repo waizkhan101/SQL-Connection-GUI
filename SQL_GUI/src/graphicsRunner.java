@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,20 +36,17 @@ public class graphicsRunner {
 	
 	public void addContents(Container pane) {
 
-		// For adding login screen in the future
-		//String name = JOptionPane.showInputDialog(null, "Enter Name");
-		//System.out.println(name);
-		
-		mainPanel = new JPanel();      
-        mainPanel.setLayout(null);
-        
-        // Connect to the Database
-        con = new MysqlCon("root", "blueBlanket!2");
-        
+		// Login Prompt, verifies correct credentials
+		loginScreen();
+
         // Populate domainList with Domains from the Database
         populateDomains();		
 		
         Border b = BorderFactory.createLineBorder(Color.BLACK, 2);
+        
+        // Create Main Panel to contain other panels
+    	mainPanel = new JPanel();      
+        mainPanel.setLayout(null);
         
         // Create Left Panel
         inputDomain = new JPanel();
@@ -199,7 +197,16 @@ public class graphicsRunner {
 	
 	public void populateDomains() {
 		
-		domainList = new String[con.getDomains().size()];
+		try {
+			domainList = new String[con.getDomains().size()];
+			
+		} catch (NullPointerException e){
+			
+			JOptionPane.showMessageDialog(mainPanel, "Invalid Login Credentials");
+			loginScreen();
+			
+		}
+		
 		int indx = 0;
 		for (String domain : con.getDomains()) {
 			domainList[indx] = domain;
@@ -225,6 +232,44 @@ public class graphicsRunner {
 						
 	}
 	
+	public void loginScreen() {
+		
+		JLabel hostLabel = new JLabel("Host:");
+		JTextField hostField = new JTextField("localhost");
+		
+		JLabel portLabel = new JLabel("Port:");
+		JTextField portField = new JTextField("");
+		
+		JLabel usernameLabel = new JLabel("Username:");
+		JTextField usernameField = new JTextField("root");
+		
+		JLabel passwordLabel = new JLabel("Password:");
+		JPasswordField passwordField = new JPasswordField("");
+		
+		String[] loginOptions = { "Login", "Cancel" };
+		
+		JPanel loginPanel = new JPanel();
+		loginPanel.setLayout(new GridLayout(0, 2));
+		
+		loginPanel.add(hostLabel);
+		loginPanel.add(hostField);
+		loginPanel.add(portLabel);
+		loginPanel.add(portField);
+		loginPanel.add(usernameLabel);
+		loginPanel.add(usernameField);
+		loginPanel.add(passwordLabel);
+		loginPanel.add(passwordField);
+		
+		if (JOptionPane.showOptionDialog(null, loginPanel, "Login", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.INFORMATION_MESSAGE, null, loginOptions, loginOptions[0]) != 0) {
+			System.exit(0);
+		}
+
+        // Connect to the Database
+		con = new MysqlCon(hostField.getText(), portField.getText(), usernameField.getText(), String.valueOf(passwordField.getPassword()));
+		
+	}
+	
 	public static void initiateFrame(String name) throws IOException {
 		
 		JFrame f = new JFrame();
@@ -236,8 +281,7 @@ public class graphicsRunner {
 		
 		graphicsRunner app = new graphicsRunner();
 		app.addContents(f.getContentPane());
-		f.setVisible(true);
-		
+		f.setVisible(true);		
 		
 	}
 	

@@ -7,8 +7,6 @@ import java.util.List;
 
 public class MysqlCon {
 	
-	private String username;
-	private String password;
 	private Connection con;
 	
 	private List<String> domainNames;
@@ -22,14 +20,11 @@ public class MysqlCon {
 	private String[] colNames;
 
 	
-	public MysqlCon(String user, String pass) {
-		
-		this.username = user;
-		this.password = pass;
-		
+	public MysqlCon(String host, String port, String user, String pass) {
+
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/common", username, password);
+			con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/common", user, pass);
 
 			fillDomains(con);
 			
@@ -166,14 +161,6 @@ public class MysqlCon {
 
 	public String[] getColNames() {
 		return colNames;
-	}
-
-	
-	
-	public static void main(String args[]) {
-		
-		MysqlCon conn = new MysqlCon("root", "blueBlanket!2");
-		
 	}
 
 }
