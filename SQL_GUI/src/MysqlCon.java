@@ -16,6 +16,8 @@ public class MysqlCon {
 	private List<String> tableNames;
 	private String selectedTable;
 	
+	private String tablePath;
+	
 	private String[][] fullTable;
 	private String[] colNames;
 
@@ -40,7 +42,7 @@ public class MysqlCon {
 	public void fillDomains(Connection con) throws SQLException {
 		
 		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery("select distinct(DomainName) from tableoftables where ReferenceFlag = 1;");
+		ResultSet rs = stmt.executeQuery("select distinct(DomainName) from common.TableofTables where ReferenceFlag = 1;");
 		
 		domainNames = new ArrayList<>();
 		while (rs.next())
@@ -51,7 +53,7 @@ public class MysqlCon {
 	public void fillTables(Connection con) throws SQLException {
 		
 		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery("select TableName from tableoftables where "
+		ResultSet rs = stmt.executeQuery("select TableName from common.TableofTables where "
 				+ "ReferenceFlag = 1 and DomainName = '" + selectedDomain + "';");
 		
 		tableNames = new ArrayList<>();
@@ -83,12 +85,11 @@ public class MysqlCon {
 	
 	public void generateFullTable() throws SQLException {
 		
-		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = stmt.executeQuery("select * from "+ selectedDomain + "." + selectedTable + ";");
+		// Get original table and metadata
+		tablePath = selectedDomain + "." + selectedTable;
 		
-		rs.last();
-		int rows = rs.getRow();
-		rs.beforeFirst();
+		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = stmt.executeQuery("select * from "+ tablePath + ";");
 		
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int cols = rsmd.getColumnCount();
@@ -98,24 +99,34 @@ public class MysqlCon {
 		for(int indx = 0; indx < cols; indx++)
 			colNames[indx] = rsmd.getColumnName(indx + 1);
 	
-		rs.beforeFirst();
 		System.out.println(Arrays.toString(colNames));
+		
+		// Filter table and get new metadata
+		ResultSet updatedRS = filterTable();
+		ResultSetMetaData updatedRSMD = updatedRS.getMetaData();
+		cols = updatedRSMD.getColumnCount();
+		
+		colNames = new String[cols];
+		for(int indx = 0; indx < cols; indx++)
+			colNames[indx] = updatedRSMD.getColumnName(indx + 1);
+	
+		System.out.println(Arrays.toString(colNames));
+		
+		updatedRS.last();
+		int rows = updatedRS.getRow();
+		updatedRS.beforeFirst();
 		
 		fullTable = new String[rows + 1][cols];
 		
 		int r = 0;		
-		while(rs.next())  {
+		while(updatedRS.next())  {
 			
 			for(int c = 0; c < cols; c ++) {
 				
-				String val = rs.getString(c + 1);
-				
-				if(rs.wasNull())
-					fullTable[r][c] = "null";
-				
+				String val = updatedRS.getString(c + 1);
 				fullTable[r][c] = val;
+				
 			}
-			
 			r++;
 			
 		}
@@ -128,8 +139,26 @@ public class MysqlCon {
 			System.out.println();
 			
 		}
+		stmt.executeUpdate("DROP TABLE new_tbl;");
 		
 	}
+	
+	public ResultSet filterTable() throws SQLException {
+		
+		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		stmt.executeUpdate("CREATE TEMPORARY TABLE new_tbl SELECT * FROM " + tablePath + ";");
+		
+		for(int x = colNames.length - 1; x > -1; x--) {
+			
+			if(colNames[x].equals("DateTimeModified") || colNames[x].equals("ModifiedBy") || colNames[x].equals("DateTimeAdded") || colNames[x].equals("AddedBy"))
+				stmt.executeUpdate("ALTER TABLE new_tbl DROP COLUMN " + colNames[x] + ";");
+			
+		}
+		
+		return stmt.executeQuery("SELECT * FROM new_tbl;");
+		
+	}
+
 	
 	public String[][] getFullTable() {
 		return fullTable;
