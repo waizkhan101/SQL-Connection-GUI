@@ -89,6 +89,17 @@ public class MysqlCon {
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int cols = rsmd.getColumnCount();
 		
+		if (cols > 4) {
+			cols -= 4;
+		}
+		else {
+			throw new SQLException();
+		}
+		
+		rs.last();
+		int rows = rs.getRow();
+		rs.beforeFirst();
+		
 		colNames = new String[cols];
 		
 		for(int indx = 0; indx < cols; indx++)
@@ -96,6 +107,7 @@ public class MysqlCon {
 	
 		System.out.println(Arrays.toString(colNames));
 		
+		/*
 		// Filter table and get new metadata
 		ResultSet updatedRS = filterTable();
 		ResultSetMetaData updatedRSMD = updatedRS.getMetaData();
@@ -108,17 +120,18 @@ public class MysqlCon {
 		System.out.println(Arrays.toString(colNames));
 		
 		updatedRS.last();
-		int rows = updatedRS.getRow();
+		rows = updatedRS.getRow();
 		updatedRS.beforeFirst();
+		*/
 		
 		fullTable = new String[rows + 1][cols];
 		
 		int r = 0;		
-		while(updatedRS.next())  {
+		while(rs.next())  {
 			
 			for(int c = 0; c < cols; c ++) {
 				
-				String val = updatedRS.getString(c + 1);
+				String val = rs.getString(c + 1);
 				fullTable[r][c] = val;
 				
 			}
@@ -134,7 +147,7 @@ public class MysqlCon {
 			System.out.println();
 			
 		}
-		stmt.executeUpdate("DROP TABLE new_tbl;");
+		//stmt.executeUpdate("DROP TABLE new_tbl;");
 		
 	}
 	
@@ -152,6 +165,8 @@ public class MysqlCon {
 		
 		return stmt.executeQuery("SELECT * FROM new_tbl;");
 		
+		
+		// check if audit columns are missing
 	}
 
 	

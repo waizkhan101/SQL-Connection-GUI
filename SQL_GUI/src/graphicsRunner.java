@@ -127,6 +127,7 @@ public class graphicsRunner {
 		
 		inputTable.revalidate();
 		inputTable.repaint();
+		result.repaint();
 		
 		tableDropdown.addActionListener(new ActionListener() {
 
@@ -182,16 +183,18 @@ public class graphicsRunner {
 	public void populateResult() {
 		
 		try {
-			con.generateFullTable();
 			
+			con.generateFullTable();
 			fullTable = con.getFullTable();
 			colNames = con.getColNames();
+			renderResultPanel();
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+			
+			JOptionPane.showMessageDialog(mainPanel, "Invalid Table, check if audit columns are missing");
+			renderTablePanel();
 		
-		renderResultPanel();
+		}
 		
 	}
 	
@@ -241,7 +244,7 @@ public class graphicsRunner {
 		JTextField portField = new JTextField("");
 		
 		JLabel usernameLabel = new JLabel("Username:");
-		JTextField usernameField = new JTextField("root");
+		JTextField usernameField = new JTextField("");
 		
 		JLabel passwordLabel = new JLabel("Password:");
 		JPasswordField passwordField = new JPasswordField("");
