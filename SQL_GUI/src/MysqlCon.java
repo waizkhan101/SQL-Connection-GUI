@@ -151,6 +151,7 @@ public class MysqlCon {
 		
 	}
 	
+	// Unused filtering method
 	public ResultSet filterTable() throws SQLException {
 		
 		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -165,8 +166,6 @@ public class MysqlCon {
 		
 		return stmt.executeQuery("SELECT * FROM new_tbl;");
 		
-		
-		// check if audit columns are missing
 	}
 
 	
